@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "746354116982",
+    "firebase_url": "https://hoc-chatapp.firebaseio.com",
+    "project_id": "hoc-chatapp",
+    "storage_bucket": "hoc-chatapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746354116982:android:f380ba66f38d2caedc5257",
+        "android_client_info": {
+          "package_name": "com.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "746354116982-lj34rddjinuh2h53san7rc5o1otlv7mn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvEuwRgQinApgGnrc-i--VjqpJanDxyGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "746354116982-lj34rddjinuh2h53san7rc5o1otlv7mn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
