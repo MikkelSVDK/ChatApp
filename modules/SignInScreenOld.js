@@ -15,7 +15,7 @@ import { GoogleSignin } from '@react-native-community/google-signin';
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
 
 GoogleSignin.configure({
-    webClientId: '746354116982-lj34rddjinuh2h53san7rc5o1otlv7mn.apps.googleusercontent.com',
+    webClientId: '746354116982-3hstbknau7g3f68uu8ivvp6ore3rpc49.apps.googleusercontent.com',
 });
 
 function GoogleSignInButton() {
@@ -144,7 +144,7 @@ function LoginApp() {
   );
 };
 
-export default class SignInActivity extends Component {
+export default class SignInScreen extends Component {
   componentDidMount() {
     // google and facebook sign in
     
@@ -203,7 +203,7 @@ export default class SignInActivity extends Component {
   }
 };
 
-const styles = StyleSheet.create({
+/*const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: Colors.white,
   },
@@ -223,3 +223,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   }
 });
+*/
