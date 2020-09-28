@@ -20,7 +20,7 @@ class Fire {
         }
     }
 
-    send = messages => {
+    send = (messages, ref) => {
         messages.forEach(element => {
             const message = {
                 text: element.text,
@@ -28,7 +28,7 @@ class Fire {
                 user: element.user
             }
 
-            this.db.push(message);
+            database().ref(ref).push(message);
         });
     }
 
@@ -45,16 +45,12 @@ class Fire {
         }
     }
 
-    get = callback => {
-        this.db.on("child_added", snapshot => callback(this.parse(snapshot)))
+    get = (callback, ref) => {
+        database().ref(ref).on("child_added", snapshot => callback(this.parse(snapshot)))
     }
 
-    off(){
-        this.db.off();
-    }
-
-    get db(){
-        return database().ref("messages");
+    off(ref){
+        database().ref(ref).off();
     }
 
     get uid(){

@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import firebase from '@react-native-firebase/app';
+import { View, Text, Button } from 'react-native'
+import auth, { firebase } from "@react-native-firebase/auth"
 import SplashScreen from 'react-native-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import SignInScreen from './modules/SignInScreen';
+import ChatRoomListScreen from './modules/ChatRoomListScreen';
 import ChatRoomScreen from './modules/ChatRoomScreen';
 
 /*const AppNavigator = createStackNavigator({
@@ -18,7 +20,7 @@ export default createAppContainer(AppNavigator);*/
 function DefaultScreen(){
   let user = firebase.auth().currentUser;
   if(user != null)
-      return "ChatRoom";
+      return "ChatRoomList";
   return "SignIn";
 }
 
@@ -32,9 +34,14 @@ export default class App extends React.Component {
   render(){
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={DefaultScreen()} screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="SignIn" animationEnabled="false" component={SignInScreen} />
-          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
+        <Stack.Navigator initialRouteName={DefaultScreen()}>
+          <Stack.Screen name="SignIn" animationEnabled="false" component={SignInScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ChatRoomList" animationEnabled="false" component={ChatRoomListScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} options={{
+          headerRight: () => (
+            <View style={{marginRight: 10}}><Button title="Sign-out" onPress={() => auth().signOut()} /></View>
+          ),
+        }} />
         </Stack.Navigator>
       </NavigationContainer>
     );

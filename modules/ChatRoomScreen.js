@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import auth, { firebase } from "@react-native-firebase/auth"
-import { View, Text, Button, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native'
+import { Button, StyleSheet, KeyboardAvoidingView } from 'react-native'
 import { GiftedChat } from 'react-native-gifted-chat'
 import Fire from '../Fire'
 
-function SignOutButton(){
-    return (
-      <Button
-        title="Sign out"
-        onPress={() => onSignOutPress()}
-      />
-    );
-}
-
-function onSignOutPress(){
-    auth()
-      .signOut()
-      .then(() => console.log('User signed out!'));
-}
-
-export default class SignInActivity extends React.Component {
+export default class ChatRoom extends React.Component {
     state = {
         messages: []
     }
@@ -32,26 +17,30 @@ export default class SignInActivity extends React.Component {
     }
 
     componentDidMount() {
+        this.props.navigation.setOptions({headerTitle: this.props.route.params.chatName});
+
         auth().onAuthStateChanged((user) => {
             if(!user)
                 this.props.navigation.navigate('SignIn')
         });
 
+        //console.log(this.props.route.params.chatRoomId);
+
         Fire.get(message => 
             this.setState(previous => ({
                 messages: GiftedChat.append(previous.messages, message)
-            }))
+            })), "chatroom-" + this.props.route.params.chatRoomId
         );
     }
 
     componentWillUnmount(){
-        Fire.off();
+        Fire.off("chatroom-" + this.props.route.params.chatRoomId);
     }
 
     render(){
         return (
             <KeyboardAvoidingView style={{flex: 1}} enabled>
-                <GiftedChat messages={this.state.messages} onSend={Fire.send} user={this.user} />
+                <GiftedChat messages={this.state.messages} onSend={(m) => Fire.send(m, "chatroom-" + this.props.route.params.chatRoomId)} user={this.user} />
             </KeyboardAvoidingView>
         );
         /*return (
@@ -77,6 +66,6 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     containerPadding: {
-        paddingVertical: 5
+        paddingVertical: 5,
     }
 });

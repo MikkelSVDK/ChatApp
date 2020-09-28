@@ -51,7 +51,7 @@ async function onFacebookSignInButtonPress() {
   return auth().signInWithCredential(facebookCredential);
 }
 
-export default class SignInActivity extends React.Component {
+export default class SignIn extends React.Component {
   componentDidMount(){
     auth().onAuthStateChanged((user) => {
       if(user)
