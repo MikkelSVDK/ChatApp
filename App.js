@@ -37,11 +37,7 @@ export default class App extends React.Component {
         <Stack.Navigator initialRouteName={DefaultScreen()}>
           <Stack.Screen name="SignIn" animationEnabled="false" component={SignInScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ChatRoomList" animationEnabled="false" component={ChatRoomListScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} options={{
-          headerRight: () => (
-            <View style={{marginRight: 10}}><Button title="Sign-out" onPress={() => auth().signOut()} /></View>
-          ),
-        }} />
+          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );

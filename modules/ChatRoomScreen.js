@@ -1,71 +1,76 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import auth, { firebase } from "@react-native-firebase/auth"
-import { Button, StyleSheet, KeyboardAvoidingView } from 'react-native'
-import { GiftedChat } from 'react-native-gifted-chat'
-import Fire from '../Fire'
+import { KeyboardAvoidingView } from 'react-native'
+import { Avatar, GiftedChat } from 'react-native-gifted-chat'
+import FlashMessage, { showMessage } from "react-native-flash-message";
+import database from '@react-native-firebase/database';
+import Fire from '../Fire';
 
 export default class ChatRoom extends React.Component {
+    chatData = typeof this.props.route.params !== 'undefined' ? this.props.route.params : {chatName: null, chatRoomId: null};
     state = {
+        isLoadingEarlier: false,
+        showingHistory: false,
+        messageHistory: [],
         messages: []
     }
 
-    get user(){
-        return {
-            _id: Fire.uid,
-            name: Fire.displayName
-        }
+    onLoadEarlier = async () => {
+        var doneWithHistory = false;
+        Fire.get(message => this.setState(previous => {
+            if (previous.messages.filter(m => m._id === message._id).length == 0){
+                previous.messageHistory.push(message);
+                return { 
+                    messageHistory: previous.messageHistory, 
+                    isLoadingEarlier: true
+                };
+            }
+
+            if(doneWithHistory == false){
+                doneWithHistory = true;
+                var reveredHistory = previous.messageHistory.reverse();
+                return { 
+                    messages: GiftedChat.append(reveredHistory, previous.messages), 
+                    isLoadingEarlier: false,
+                    showingHistory: true
+                };
+            }
+
+        }), true, "chatroom-" + this.chatData.chatRoomId);
     }
 
     componentDidMount() {
-        this.props.navigation.setOptions({headerTitle: this.props.route.params.chatName});
+        this.props.navigation.setOptions({headerTitle: this.chatData.chatName});
 
         auth().onAuthStateChanged((user) => {
             if(!user)
                 this.props.navigation.navigate('SignIn')
         });
 
-        //console.log(this.props.route.params.chatRoomId);
-
         Fire.get(message => 
             this.setState(previous => ({
                 messages: GiftedChat.append(previous.messages, message)
-            })), "chatroom-" + this.props.route.params.chatRoomId
+            })), false, "chatroom-" + this.chatData.chatRoomId
         );
     }
 
     componentWillUnmount(){
-        Fire.off("chatroom-" + this.props.route.params.chatRoomId);
+        Fire.off("chatroom-" + this.chatData.chatRoomId);
     }
-
-    render(){
+    
+    render(){      
         return (
             <KeyboardAvoidingView style={{flex: 1}} enabled>
-                <GiftedChat messages={this.state.messages} onSend={(m) => Fire.send(m, "chatroom-" + this.props.route.params.chatRoomId)} user={this.user} />
+                <GiftedChat 
+                  loadEarlier={this.state.messages.length >= 50 && !this.state.showingHistory}
+                  onLoadEarlier={this.onLoadEarlier}
+                  isLoadingEarlier={this.state.isLoadingEarlier}
+                  showUserAvatar={true}
+                  messages={this.state.messages}
+                  onSend={(m) => Fire.send(m, "chatroom-" + this.chatData.chatRoomId)}
+                  user={Fire.user} />
+                <FlashMessage position="top" />
             </KeyboardAvoidingView>
         );
-        /*return (
-            <View style={styles.container}>
-                <View style={styles.containerPadding}>
-                    <Text>Hello, World!</Text>
-                </View>
-                <View style={styles.containerPadding}>
-                    <SignOutButton />
-                </View>
-                <View style={styles.containerPadding}>
-                    <Button title="Go to Signin Screen" onPress={() => this.props.navigation.navigate('SignIn')} />
-                </View>
-            </View>
-        );*/
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    containerPadding: {
-        paddingVertical: 5,
-    }
-});

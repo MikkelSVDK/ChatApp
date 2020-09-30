@@ -32,6 +32,22 @@ class Fire {
         });
     }
 
+    reverseObject = (object) => {
+        var newObject = {};
+        var keys = [];
+    
+        for (var key in object) {
+            keys.push(key);
+        }
+    
+        for (var i = keys.length - 1; i >= 0; i--) {
+            var value = object[keys[i]];
+            newObject[keys[i]]= value;
+        }       
+    
+        return newObject;
+    }
+
     parse = message => {
         const { user, text, timestamp } = message.val();
         const { key: _id } = message;
@@ -45,20 +61,24 @@ class Fire {
         }
     }
 
-    get = (callback, ref) => {
-        database().ref(ref).on("child_added", snapshot => callback(this.parse(snapshot)))
+    get = (callback, history = false, ref) => {
+        if(history == true)
+            database().ref(ref).orderByChild("timestamp").on("child_added", snapshot => callback(this.parse(snapshot)))
+        else
+            database().ref(ref).limitToLast(50).on("child_added", snapshot => callback(this.parse(snapshot)))
     }
 
     off(ref){
         database().ref(ref).off();
     }
 
-    get uid(){
-        return (firebase.auth().currentUser || {}).uid
-    }
-
-    get displayName(){
-        return (firebase.auth().currentUser || {}).displayName
+    get user(){
+        const userInfo = firebase.auth().currentUser;
+        return {
+            _id: userInfo.uid,
+            name: userInfo.displayName,
+            avatar: userInfo.avatarUrl
+        }
     }
 }
 

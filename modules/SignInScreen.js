@@ -6,7 +6,7 @@ import { LoginManager, AccessToken } from 'react-native-fbsdk';
 import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
 
 GoogleSignin.configure({
-  webClientId: '746354116982-lj34rddjinuh2h53san7rc5o1otlv7mn.apps.googleusercontent.com',
+  webClientId: '746354116982-3hstbknau7g3f68uu8ivvp6ore3rpc49.apps.googleusercontent.com',
 });
 
 function GoogleSignInButton() {
@@ -19,13 +19,9 @@ function GoogleSignInButton() {
 }
 
 async function onGoogleSignInButtonPress() {
-  try{
-    const { idToken } = await GoogleSignin.signIn();
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    return auth().signInWithCredential(googleCredential);
-  }catch(e){
-    showMessage({message: e.toString(), type: "danger"})
-  }
+  const { idToken } = await GoogleSignin.signIn();
+  const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  return auth().signInWithCredential(googleCredential);
 }
 
 function FacebookSignInButton() {
@@ -41,11 +37,11 @@ async function onFacebookSignInButtonPress() {
   const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
   
   if (result.isCancelled)
-    console.log('User cancelled the login process');
+    throw 'Log ind annuleret';
   
   const data = await AccessToken.getCurrentAccessToken();
   if(!data)
-    throw 'Noget gik galt med at få en token';
+    throw "Der skete en uventet fejl";
   
   const facebookCredential = auth.FacebookAuthProvider.credential(data.accessToken);
   return auth().signInWithCredential(facebookCredential);
@@ -55,13 +51,14 @@ export default class SignIn extends React.Component {
   componentDidMount(){
     auth().onAuthStateChanged((user) => {
       if(user)
-        this.props.navigation.navigate('ChatRoom')
+        this.props.navigation.navigate('ChatRoomList')
     });
 
     if(firebase.auth().currentUser)
-      this.props.navigation.navigate('ChatRoom')
+      this.props.navigation.navigate('ChatRoomList')
   }
   render(){
+    
     return (
       <View style={styles.container}>
         <Image 
