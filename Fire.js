@@ -29,23 +29,8 @@ class Fire {
             }
 
             database().ref(ref).push(message);
+            database().ref(ref.replace("/messages", "")).update({last_message: database.ServerValue.TIMESTAMP});
         });
-    }
-
-    reverseObject = (object) => {
-        var newObject = {};
-        var keys = [];
-    
-        for (var key in object) {
-            keys.push(key);
-        }
-    
-        for (var i = keys.length - 1; i >= 0; i--) {
-            var value = object[keys[i]];
-            newObject[keys[i]]= value;
-        }       
-    
-        return newObject;
     }
 
     parse = message => {

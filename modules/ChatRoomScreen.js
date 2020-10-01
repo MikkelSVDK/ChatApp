@@ -36,7 +36,7 @@ export default class ChatRoom extends React.Component {
                 };
             }
 
-        }), true, "chatroom-" + this.chatData.chatRoomId);
+        }), true, "chatroom/" + this.chatData.chatRoomId + "/messages");
     }
 
     componentDidMount() {
@@ -50,12 +50,12 @@ export default class ChatRoom extends React.Component {
         Fire.get(message => 
             this.setState(previous => ({
                 messages: GiftedChat.append(previous.messages, message)
-            })), false, "chatroom-" + this.chatData.chatRoomId
+            })), false, "chatroom/" + this.chatData.chatRoomId + "/messages"
         );
     }
 
     componentWillUnmount(){
-        Fire.off("chatroom-" + this.chatData.chatRoomId);
+        Fire.off("chatroom/" + this.chatData.chatRoomId + "/messages");
     }
     
     render(){      
@@ -67,7 +67,7 @@ export default class ChatRoom extends React.Component {
                   isLoadingEarlier={this.state.isLoadingEarlier}
                   showUserAvatar={true}
                   messages={this.state.messages}
-                  onSend={(m) => Fire.send(m, "chatroom-" + this.chatData.chatRoomId)}
+                  onSend={(m) => Fire.send(m, "chatroom/" + this.chatData.chatRoomId + "/messages")}
                   user={Fire.user} />
                 <FlashMessage position="top" />
             </KeyboardAvoidingView>
