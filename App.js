@@ -1,21 +1,22 @@
-import React, { Component } from 'react';
-import { View, Text, Button } from 'react-native'
+import Fire from './Fire';
+import React from 'react';
+import { AppRegistry } from 'react-native'
 import auth, { firebase } from "@react-native-firebase/auth"
 import SplashScreen from 'react-native-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import messaging from '@react-native-firebase/messaging';
+import firestore from '@react-native-firebase/firestore';
 
 import SignInScreen from './modules/SignInScreen';
 import ChatRoomListScreen from './modules/ChatRoomListScreen';
 import ChatRoomScreen from './modules/ChatRoomScreen';
 
-/*const AppNavigator = createStackNavigator({
-  SignIn: SignInActivity
-},{
-  headerMode: "none"
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
 });
 
-export default createAppContainer(AppNavigator);*/
+AppRegistry.registerComponent('app', () => App);
 
 function DefaultScreen(){
   let user = firebase.auth().currentUser;
@@ -26,9 +27,33 @@ function DefaultScreen(){
 
 const Stack = createStackNavigator();
 
+async function saveTokenToDatabase(token) {
+  let user = firebase.auth().currentUser;
+  if(user != null){
+
+    // Add the token to the users datastore
+    await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .set({
+        tokens: firestore.FieldValue.arrayUnion(token),
+      }, {merge: true});
+  }
+}
+
 export default class App extends React.Component {
   componentDidMount() {
     SplashScreen.hide();
+
+    messaging()
+      .getToken()
+      .then(token => {
+        return saveTokenToDatabase(token);
+    });
+    
+    messaging().onTokenRefresh(token => {
+      saveTokenToDatabase(token);
+    });
   }
 
   render(){

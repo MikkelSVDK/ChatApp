@@ -3,12 +3,9 @@ import { View, ScrollView, FlatList, SafeAreaView, RefreshControl, StyleSheet, T
 import auth, { firebase } from "@react-native-firebase/auth";
 import { Icon } from 'react-native-elements';
 import database from '@react-native-firebase/database';
-
-/*const wait = (timeout) => {
-    return new Promise(resolve => {
-        setTimeout(resolve, timeout);
-    });
-}*/
+import messaging from '@react-native-firebase/messaging';
+import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
+import Fire from '../Fire';
 
 export default class ChatRoomList extends React.Component {
     getAvailableChatRooms = async () => {
@@ -25,7 +22,6 @@ export default class ChatRoomList extends React.Component {
         }.bind(this));
 
         const sorted = chatRoom.sort(function(a, b) {
-            console.log();
             return a.last_message - b.last_message;
         })
 
@@ -52,22 +48,17 @@ export default class ChatRoomList extends React.Component {
                 this.props.navigation.navigate('SignIn')
         });
 
+        messaging().onMessage(async remoteMessage => {
+            showMessage({onPress: () => this.props.navigation.navigate('ChatRoom', {chatRoomId: remoteMessage.data.chatRoomId, chatName: remoteMessage.data.chatName}), message: remoteMessage.notification.title, duration: 5000, type: "info"});
+        });
+
         this.getAvailableChatRooms().then(() => {
             this.setState(() => {return {refreshing: false}});
         });
     }
 
     render(){
-        
-        /*const [refreshing, setRefreshing] = React.useState(false);
-
-        const onRefresh = React.useCallback(() => {
-            setRefreshing(true);
-
-            wait(2000).then(() => setRefreshing(false));
-        }, []);*/
-
-        function Item({ navigation, id, title, description }) {
+        function Item({ navigation, id, title, description, date }) {
             return (
                 <TouchableOpacity
                   style={styles.chatRooms}
@@ -84,6 +75,7 @@ export default class ChatRoomList extends React.Component {
                         <Icon name="arrow-right"/>
                     </View>
                     <Text>{description}</Text>  
+                    <Text style={{ fontSize: 10 }}>Sidste besked: {new Date(date).toString().slice(0, 24)}</Text>  
                 </TouchableOpacity>
             );
         }
@@ -92,7 +84,7 @@ export default class ChatRoomList extends React.Component {
             <SafeAreaView style={styles.container}>
                 <FlatList
                     data={this.state.chatRooms}
-                    renderItem={({ item }) => <Item navigation={this.props.navigation} id={item.chatRoomId} title={item.chatName} description={item.chatDescription} />}
+                    renderItem={({ item }) => <Item navigation={this.props.navigation} id={item.chatRoomId} title={item.chatName} description={item.chatDescription} date={item.last_message} />}
                     keyExtractor={item => item.chatRoomId}
                     refreshControl={
                         <RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />
@@ -104,6 +96,7 @@ export default class ChatRoomList extends React.Component {
                         onPress={() => auth().signOut()}
                     />
                 </View>
+                <FlashMessage position="top" />
             </SafeAreaView>
         );
     }
@@ -117,8 +110,8 @@ const styles = StyleSheet.create({
       flex: 1
     },
     chatRooms: {
-        padding: 20,
-        backgroundColor: "#DDDDDD",
+        padding: 15,
+        backgroundColor: "#fff",
         borderColor: "#000000",
         borderTopWidth: 0,
         borderWidth: 1
