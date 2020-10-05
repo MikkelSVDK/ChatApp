@@ -52,6 +52,10 @@ export default class ChatRoomList extends React.Component {
             showMessage({onPress: () => this.props.navigation.navigate('ChatRoom', {chatRoomId: remoteMessage.data.chatRoomId, chatName: remoteMessage.data.chatName}), message: remoteMessage.notification.title, duration: 5000, type: "info"});
         });
 
+        messaging().onNotificationOpenedApp(remoteMessage => {
+            this.props.navigation.navigate('ChatRoom', {chatRoomId: remoteMessage.data.chatRoomId, chatName: remoteMessage.data.chatName});
+        });
+
         this.getAvailableChatRooms().then(() => {
             this.setState(() => {return {refreshing: false}});
         });

@@ -3,10 +3,11 @@ import React from 'react';
 import { AppRegistry } from 'react-native'
 import auth, { firebase } from "@react-native-firebase/auth"
 import SplashScreen from 'react-native-splash-screen';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import messaging from '@react-native-firebase/messaging';
 import firestore from '@react-native-firebase/firestore';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 import SignInScreen from './modules/SignInScreen';
 import ChatRoomListScreen from './modules/ChatRoomListScreen';
@@ -15,6 +16,16 @@ import ChatRoomScreen from './modules/ChatRoomScreen';
 messaging().setBackgroundMessageHandler(async remoteMessage => {
   console.log('Message handled in the background!', remoteMessage);
 });
+
+/*messaging().getInitialNotification().then(remoteMessage => {
+  if (remoteMessage) {
+    console.log('Notification caused app to open from quit state:',remoteMessage);
+  }
+});
+
+dynamicLinks().onLink(url => { 
+  console.log(url);
+});*/
 
 AppRegistry.registerComponent('app', () => App);
 
@@ -43,6 +54,8 @@ async function saveTokenToDatabase(token) {
 
 export default class App extends React.Component {
   componentDidMount() {
+    
+
     SplashScreen.hide();
 
     messaging()

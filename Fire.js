@@ -23,13 +23,17 @@ class Fire {
         }
     }
 
-    send = (messages, ref) => {
+    send = (messages, imageURL, ref) => {
         messages.forEach(async element => {
             const message = {
                 text: element.text,
                 timestamp: database.ServerValue.TIMESTAMP,
                 user: element.user
             }
+
+            console.log(imageURL);
+            if(imageURL != null)
+                message["image"] = imageURL;
 
             database().ref(ref).push(message);
             database().ref(ref.replace("/messages", "")).update({last_message: database.ServerValue.TIMESTAMP});
@@ -84,7 +88,7 @@ class Fire {
     }
 
     parse = message => {
-        const { user, text, timestamp } = message.val();
+        const { user, text, timestamp, image } = message.val();
         const { key: _id } = message;
         const createdAt = new Date(timestamp);
 
@@ -92,7 +96,8 @@ class Fire {
             _id,
             createdAt,
             text,
-            user
+            user,
+            image
         }
     }
 
