@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, FlatList, SafeAreaView, RefreshControl, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
-import auth, { firebase } from "@react-native-firebase/auth";
+import Fire from '../Fire';
+import React from 'react';
+import { View, FlatList, SafeAreaView, RefreshControl, StyleSheet, Text, TouchableOpacity, Button } from 'react-native';
+import auth from "@react-native-firebase/auth";
 import { Icon } from 'react-native-elements';
 import database from '@react-native-firebase/database';
 import messaging from '@react-native-firebase/messaging';
-import FlashMessage, { showMessage, hideMessage } from "react-native-flash-message";
-import Fire from '../Fire';
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 export default class ChatRoomList extends React.Component {
+    // Henter alle chatrooms fra firestore database
     getAvailableChatRooms = async () => {
         var chatRoom = [];
         await database().ref("chatroom").orderByChild("last_message").once('value').then(function(snapshot) {
@@ -19,22 +20,26 @@ export default class ChatRoomList extends React.Component {
                     last_message: snapshot.val()[property].last_message
                 });
             }
-        }.bind(this));
+        });
 
+        // Sotere chatrummene efter nyeste besked, siden .orderByChild("last_message") ikke ser ud til at gøre det
         const sorted = chatRoom.sort(function(a, b) {
             return a.last_message - b.last_message;
         })
 
+        // Soteringen retunere ascending så det reverses 
         this.setState(() => {
             return {chatRooms: sorted.reverse()}
         });
     }
 
+    // Default state
     state = {
         chatRooms: [],
         refreshing: true
     };
 
+    // Pull to refesh 
     onRefresh = () => {
         this.setState(() => {return {refreshing: true}});
         this.getAvailableChatRooms().then(() => {
@@ -43,25 +48,30 @@ export default class ChatRoomList extends React.Component {
     }
 
     componentDidMount() {
+        // Hvis brugeren logger ud sendes de til login skærmen
         auth().onAuthStateChanged((user) => {
             if(!user)
                 this.props.navigation.navigate('SignIn')
         });
 
+        // Hvis de sidder i chatroom listen og modtager en noti vises den med showMessage func.
         messaging().onMessage(async remoteMessage => {
             showMessage({onPress: () => this.props.navigation.navigate('ChatRoom', {chatRoomId: remoteMessage.data.chatRoomId, chatName: remoteMessage.data.chatName}), message: remoteMessage.notification.title, duration: 5000, type: "info"});
         });
 
+        // Notifikations handler når de klikker på noti uden for appen. (Sender brugeren til det rigtige chatrum)
         messaging().onNotificationOpenedApp(remoteMessage => {
             this.props.navigation.navigate('ChatRoom', {chatRoomId: remoteMessage.data.chatRoomId, chatName: remoteMessage.data.chatName});
         });
 
+        // Kalder chatroom func og sætter refreshing til false
         this.getAvailableChatRooms().then(() => {
             this.setState(() => {return {refreshing: false}});
         });
     }
 
     render(){
+        // Func til at render hver chatroom som en TouchableOpacity
         function Item({ navigation, id, title, description, date }) {
             return (
                 <TouchableOpacity
