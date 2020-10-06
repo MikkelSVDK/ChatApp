@@ -1,2 +1,2 @@
 # ChatApp
-Timer brugt indtil videre: 44
+Timer brugt indtil videre: 46
